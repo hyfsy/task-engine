@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="OFF" monitorInterval="30">
+    <appenders>
+        <Console name="Console" />
+    </appenders>
+
+    <loggers>
+        <root level="INFO">
+            <appender-ref ref="Console"/>
+        </root>
+
+        <logger name="com.hyf.task.core.task" level="INFO" additivity="false" >
+            <appender-ref ref="Console"/>
+        </logger>
+    </loggers>
+</configuration>
