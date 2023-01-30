@@ -9,7 +9,7 @@
             <appender-ref ref="Console"/>
         </root>
 
-        <logger name="com.hyf.task.core.task" level="INFO" additivity="false" >
+        <logger name="com.hyf.task.core" level="INFO" additivity="false" >
             <appender-ref ref="Console"/>
         </logger>
     </loggers>
