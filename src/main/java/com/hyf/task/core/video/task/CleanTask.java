@@ -1,6 +1,5 @@
 package com.hyf.task.core.video.task;
 
-import com.hyf.task.core.task.ComputeTask;
 import com.hyf.task.core.TaskContext;
 import com.hyf.task.core.annotation.NeedAttribute;
 import com.hyf.task.core.utils.FileUtils;
@@ -16,7 +15,7 @@ import static com.hyf.task.core.video.constants.VideoConstants.DOWNLOAD_RESOURCE
  * @date 2023/01/29
  */
 @NeedAttribute(DOWNLOAD_RESOURCE_PATH)
-public class CleanTask extends ComputeTask<File> {
+public class CleanTask extends VideoComputeTask<File> {
 
     @Override
     public File process(TaskContext context) throws Exception {

@@ -1,8 +1,8 @@
 package com.hyf.task.core;
 
+import com.hyf.task.core.constants.TaskConstants;
 import com.hyf.task.core.exception.TaskFailureHandler;
 import com.hyf.task.core.task.Task;
-import com.hyf.task.core.video.constants.VideoConstants;
 
 import java.util.concurrent.Callable;
 
@@ -22,10 +22,10 @@ public class TaskCallable<T> implements Callable<T> {
             T result = task.process(context);
 
             if (result == null) {
-                context.removeAttribute(VideoConstants.PREVIOUS_PROCESS_RESULT);
+                context.removeAttribute(TaskConstants.TASK_PREVIOUS_PROCESS_RESULT);
             }
             else {
-                context.putAttribute(VideoConstants.PREVIOUS_PROCESS_RESULT, result);
+                context.putAttribute(TaskConstants.TASK_PREVIOUS_PROCESS_RESULT, result);
             }
 
             if (context.isNeedTriggerNextStep()) {

@@ -4,8 +4,6 @@ import com.hyf.task.core.utils.FileUtils;
 
 import java.io.File;
 
-import static com.hyf.task.core.video.constants.VideoConstants.DEFAULT_VIDEO_SAVE_PATH;
-
 /**
  * @author baB_hyf
  * @date 2023/01/15
@@ -13,31 +11,19 @@ import static com.hyf.task.core.video.constants.VideoConstants.DEFAULT_VIDEO_SAV
 public class TaskCleaner {
 
     public static void main(String[] args) {
-        clearAll();
+        cleanCache();
     }
 
-    public static void clearAll() {
-        clearAll(null);
-    }
-
-    public static void clearAll(String path) {
-        clearCache();
-        clearVideo(path);
-    }
-
-    public static void clearCache() {
+    public static void cleanCache() {
         FileCache.clearCache();
     }
 
-    public static void clearVideo() {
-        clearVideo(null);
-    }
-
-    public static void clearVideo(String path) {
+    public static void cleanProduct(String path) {
         if (path == null) {
-            path = DEFAULT_VIDEO_SAVE_PATH;
+            return;
         }
         File file = new File(path);
-        FileUtils.delete(file);
+        // 防止误点后悔
+        FileUtils.moveToTrash(file);
     }
 }

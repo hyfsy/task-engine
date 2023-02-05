@@ -2,7 +2,7 @@ package com.hyf.task.core.video.task;
 
 import com.hyf.task.core.TaskContext;
 import com.hyf.task.core.annotation.NeedAttribute;
-import com.hyf.task.core.task.FileCacheCleanTask;
+import com.hyf.task.core.task.CacheCleanTask;
 
 /**
  * 清除下载的html文件缓存
@@ -11,7 +11,7 @@ import com.hyf.task.core.task.FileCacheCleanTask;
  * @date 2023/01/29
  */
 @NeedAttribute(value = DownloadHtmlTask.CACHE_IDENTITY_DOWNLOAD_HTML, required = false)
-public class DownloadHtmlFileCacheCleanTask extends FileCacheCleanTask {
+public class DownloadHtmlFileCacheCleanTask extends CacheCleanTask {
     @Override
     protected String getIdentity(TaskContext context) {
         return DownloadHtmlTask.CACHE_IDENTITY_DOWNLOAD_HTML;

@@ -1,7 +1,7 @@
 package com.hyf.task.core.exception;
 
-import com.hyf.task.core.task.Task;
 import com.hyf.task.core.TaskContext;
+import com.hyf.task.core.task.Task;
 
 /**
  * @author baB_hyf
@@ -9,6 +9,6 @@ import com.hyf.task.core.TaskContext;
  */
 public interface TaskFailureHandler {
 
-    <T> T handle(Task<T> videoTask, TaskContext taskContext, Throwable t);
+    <T> T handle(Task<T> task, TaskContext taskContext, Throwable t);
 
 }

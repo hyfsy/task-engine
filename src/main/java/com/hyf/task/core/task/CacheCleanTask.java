@@ -10,13 +10,14 @@ import com.hyf.task.core.utils.StringUtils;
  * @author baB_hyf
  * @date 2023/01/29
  */
-public abstract class FileCacheCleanTask extends ComputeTask<Void> {
+public abstract class CacheCleanTask extends Task<Void> {
 
     @Override
     public Void process(TaskContext context) throws Exception {
         String cacheIdentity = getIdentity(context);
-        if (StringUtils.isNotBlank(cacheIdentity)) {
-            FileCache.clearCache(cacheIdentity);
+        String cacheRelativePath = context.getAttribute(cacheIdentity);
+        if (StringUtils.isNotBlank(cacheRelativePath)) {
+            FileCache.clearCache(cacheRelativePath);
         }
         context.triggerNextStep();
         return null;

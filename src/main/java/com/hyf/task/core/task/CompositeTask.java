@@ -1,8 +1,8 @@
 package com.hyf.task.core.task;
 
 import com.hyf.task.core.TaskContext;
-import com.hyf.task.core.video.constants.VideoConstants;
-import com.hyf.task.core.utils.ExecuteUtils;
+import com.hyf.task.core.constants.TaskConstants;
+import com.hyf.task.core.utils.ExecutorUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.function.BinaryOperator;
  *
  * @param <R> 任务返回结果
  */
-public class CompositeTask<R> extends CommonTask<R> {
+public class CompositeTask<R> extends Task<R> {
 
     private static final ConcurrentHashMap<String, CompositeResult<?>> processResultTable = new ConcurrentHashMap<>();
 
@@ -51,10 +51,10 @@ public class CompositeTask<R> extends CommonTask<R> {
     @Override
     public ExecutorService getExecutor() {
         // return tasks.size() > 0 ? tasks.get(0).getExecutor() : super.getExecutor();
-        return ExecuteUtils.commonExecutor;
+        return ExecutorUtils.commonExecutor;
     }
 
-    public static class CompositeSubTask<R> extends CommonTask<R> {
+    public static class CompositeSubTask<R> extends Task<R> {
 
         private final Task<R>     delegate;
         private final TaskContext context; // 外部的context仅用于触发fork
@@ -148,7 +148,7 @@ public class CompositeTask<R> extends CommonTask<R> {
         }
     }
 
-    private static class CompositeResultSubTask<R> extends CommonTask<Void> {
+    private static class CompositeResultSubTask<R> extends Task<Void> {
 
         private final Task<R>            originTask;
         private final CompositeResult<R> compositeResult;
@@ -162,7 +162,7 @@ public class CompositeTask<R> extends CommonTask<R> {
         @Override
         public Void process(TaskContext context) throws Exception {
 
-            int retryTime = context.getAttribute(VideoConstants.DOWNLOAD_RESOURCE_RETRY_TIME, 3);
+            int retryTime = context.getAttribute(TaskConstants.TASK_FAILED_RETRY_TIME_KEY, TaskConstants.TASK_FAILED_RETRY_TIME);
 
             R result = null;
             Throwable t = null;

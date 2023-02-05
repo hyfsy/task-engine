@@ -1,11 +1,10 @@
 package com.hyf.task.core.video.task;
 
 import com.hyf.hotrefresh.common.util.IOUtils;
-import com.hyf.task.core.task.ComputeTask;
 import com.hyf.task.core.TaskContext;
 import com.hyf.task.core.exception.TaskException;
-import com.hyf.task.core.video.constants.M3U8Constants;
 import com.hyf.task.core.utils.FileUtils;
+import com.hyf.task.core.video.constants.M3U8Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +13,7 @@ import java.io.InputStream;
 /**
  * 多个TS文件合并的任务
  */
-public class MergeTSResourceTask extends ComputeTask<File> {
+public class MergeTSResourceTask extends VideoComputeTask<File> {
 
     public static final String OUTPUT_FILE_NAME = "000000_OUTPUT.mp4";
 
@@ -48,7 +47,7 @@ public class MergeTSResourceTask extends ComputeTask<File> {
             try {
 
                 if (log.isDebugEnabled()) {
-                    log.debug("==> start to decode video, videoId: " + context.getVideoId());
+                    log.debug("==> start to decode video, videoId: " + getVideoId(context));
                 }
 
                 Process process = Runtime.getRuntime().exec(decodeCommand, null, new File(downloadResourcePath));

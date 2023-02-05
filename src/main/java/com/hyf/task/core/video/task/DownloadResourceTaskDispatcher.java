@@ -1,6 +1,5 @@
 package com.hyf.task.core.video.task;
 
-import com.hyf.task.core.task.CommonTask;
 import com.hyf.task.core.TaskContext;
 import com.hyf.task.core.annotation.NeedAttribute;
 import com.hyf.task.core.task.CompositeTask;
@@ -11,20 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.hyf.task.core.constants.TaskConstants.TASK_PREVIOUS_PROCESS_RESULT;
 import static com.hyf.task.core.video.constants.VideoConstants.DOWNLOAD_RESOURCE_URL;
-import static com.hyf.task.core.video.constants.VideoConstants.PREVIOUS_PROCESS_RESULT;
 
 /**
  * 多资源文件下载任务派发器，所有资源下载完后才执行后续任务
  */
-@NeedAttribute(PREVIOUS_PROCESS_RESULT)
+@NeedAttribute(TASK_PREVIOUS_PROCESS_RESULT)
 @NeedAttribute(DOWNLOAD_RESOURCE_URL)
-public class DownloadResourceTaskDispatcher extends CommonTask<Void> {
+public class DownloadResourceTaskDispatcher extends VideoCommonTask<Void> {
 
     @Override
     public Void process(TaskContext context) throws Exception {
-        String videoSavePath = context.getVideoSavePath();
-        List<String> downloadUrlList = context.getAttribute(PREVIOUS_PROCESS_RESULT);
+        String videoSavePath = getVideoSavePath(context);
+        List<String> downloadUrlList = context.getAttribute(TASK_PREVIOUS_PROCESS_RESULT);
 
         if (downloadUrlList == null || downloadUrlList.isEmpty()) {
             return null;
@@ -46,7 +45,7 @@ public class DownloadResourceTaskDispatcher extends CommonTask<Void> {
 
         if (resourceUrls.isEmpty()) {
             if (log.isDebugEnabled()) {
-                log.debug("cannot find resource list in video obj, videoId: " + context.getVideoId());
+                log.debug("cannot find resource list in video obj, videoId: " + getVideoId(context));
             }
             return null;
         }
@@ -67,7 +66,7 @@ public class DownloadResourceTaskDispatcher extends CommonTask<Void> {
 
         CompositeTask<File> compositeTask = new CompositeTask<>(tasks, (r1, r2) -> null, (r, t) -> {
             if (t != null) {
-                log.error("==> file down load failed, id: " + context.getVideoId(), t);
+                log.error("==> file down load failed, id: " + getVideoId(context), t);
                 return;
             }
             // TODO result

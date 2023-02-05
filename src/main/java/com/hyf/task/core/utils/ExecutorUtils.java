@@ -3,12 +3,15 @@ package com.hyf.task.core.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ExecuteUtils {
+public class ExecutorUtils {
 
     public static final ThreadPoolExecutor commonExecutor =
             new ThreadPoolExecutor(0, Integer.MAX_VALUE, 3, TimeUnit.SECONDS, new SynchronousQueue<>(),
@@ -47,7 +50,7 @@ public class ExecuteUtils {
 
     public static final LocalDateTime startTime = LocalDateTime.now();
 
-    private static final Logger log = LoggerFactory.getLogger(ExecuteUtils.class);
+    private static final Logger log = LoggerFactory.getLogger(ExecutorUtils.class);
 
     static {
         initExecutors();
@@ -88,7 +91,7 @@ public class ExecuteUtils {
     private static void startCaptureThread() {
         Thread t = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
-                ExecuteUtils.capture();
+                ExecutorUtils.capture();
 
                 try {
                     Thread.sleep(5000L);
@@ -109,18 +112,24 @@ public class ExecuteUtils {
         long taskCount = commonExecutor.getTaskCount() + cpuExecutor.getTaskCount() + ioExecutor.getTaskCount();
         long completedTaskCount = commonExecutor.getCompletedTaskCount() + cpuExecutor.getCompletedTaskCount() + ioExecutor.getCompletedTaskCount();
 
-        // System.out.printf(durationText + " - common[q: %s, t: %s], cpu[q: %s, t: %s], io[q: %s, t: %s], stat[t: %s, f: %s]%n",
+        BigDecimal ctc = new BigDecimal(String.valueOf(completedTaskCount));
+        BigDecimal tc = new BigDecimal(String.valueOf(taskCount));
+        String progress = ctc.multiply(new BigDecimal("100"), MathContext.DECIMAL64)
+                .divide(tc, 2, BigDecimal.ROUND_DOWN)
+                .stripTrailingZeros().toPlainString();
+
+        // System.out.printf(durationText + " - common[q: %s, t: %s], cpu[q: %s, t: %s], io[q: %s, t: %s], stat[t: %s, f: %s, p: %s%]%n",
         //         commonExecutor.getQueue().size(), commonExecutor.getActiveCount(),
         //         cpuExecutor.getQueue().size(), cpuExecutor.getActiveCount(),
         //         ioExecutor.getQueue().size(), ioExecutor.getActiveCount(),
-        //         taskCount, completedTaskCount
+        //         taskCount, completedTaskCount, progress
         // );
 
-        log.info(durationText + " - common[q: {}, t: {}], cpu[q: {}, t: {}], io[q: {}, t: {}], stat[t: {}, f: {}]",
+        log.info(durationText + " - common[q: {}, t: {}], cpu[q: {}, t: {}], io[q: {}, t: {}], stat[t: {}, f: {}, p: {}%]",
                 commonExecutor.getQueue().size(), commonExecutor.getActiveCount(),
                 cpuExecutor.getQueue().size(), cpuExecutor.getActiveCount(),
                 ioExecutor.getQueue().size(), ioExecutor.getActiveCount(),
-                taskCount, completedTaskCount
+                taskCount, completedTaskCount, progress
         );
     }
 }

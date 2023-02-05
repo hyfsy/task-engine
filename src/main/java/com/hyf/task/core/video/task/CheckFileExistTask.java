@@ -1,6 +1,5 @@
 package com.hyf.task.core.video.task;
 
-import com.hyf.task.core.task.CommonTask;
 import com.hyf.task.core.TaskContext;
 import com.hyf.task.core.annotation.NeedAttribute;
 import com.hyf.task.core.utils.StringUtils;
@@ -16,7 +15,7 @@ import static com.hyf.task.core.video.task.CheckFileExistTask.CHECK_FILE_PATH;
  * @date 2022/10/18
  */
 @NeedAttribute(CHECK_FILE_PATH)
-public class CheckFileExistTask extends CommonTask<Void> {
+public class CheckFileExistTask extends VideoCommonTask<Void> {
 
     public static final String CHECK_FILE_PATH = "CHECK_FILE_PATH";
 

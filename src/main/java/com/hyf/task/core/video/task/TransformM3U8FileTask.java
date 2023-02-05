@@ -1,6 +1,5 @@
 package com.hyf.task.core.video.task;
 
-import com.hyf.task.core.task.CommonTask;
 import com.hyf.task.core.FileCache;
 import com.hyf.task.core.TaskContext;
 import com.hyf.task.core.annotation.NeedAttribute;
@@ -23,7 +22,7 @@ import static com.hyf.task.core.video.constants.M3U8Constants.*;
  * 将m3u8文件重新转换为本地可使用的文件（例如ts文件路径等）并迁移到指定目录下
  */
 @NeedAttribute(CACHE_IDENTITY_DOWNLOAD_M3U8_FILE)
-public class TransformM3U8FileTask extends CommonTask<Void> {
+public class TransformM3U8FileTask extends VideoCommonTask<Void> {
 
     @Override
     public Void process(TaskContext context) throws Exception {
@@ -60,7 +59,17 @@ public class TransformM3U8FileTask extends CommonTask<Void> {
                     }
                 }
                 if (!row.startsWith(M3U8_FILE_COMMENT)) {
-                    return row.substring(row.lastIndexOf("/") + 1);
+                    row = row.substring(row.lastIndexOf("/") + 1);
+                    if (!row.endsWith(".ts") && !row.endsWith(".m3u8") && !row.endsWith(".key")) {
+                        int i = row.lastIndexOf(".");
+                        if (i == -1) { // add .ts suffix directly?
+                            throw new RuntimeException("Illegal url: " + row);
+                        }
+                        else {
+                            row = row.substring(0, i) + ".ts";
+                        }
+                    }
+                    return row;
                 }
 
                 return row;

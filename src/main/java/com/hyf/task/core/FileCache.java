@@ -1,6 +1,5 @@
 package com.hyf.task.core;
 
-
 import com.hyf.task.core.utils.FileUtils;
 
 import java.io.File;
@@ -9,11 +8,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 
 public class FileCache {
-
-    public interface CacheOperation<R> {
-        InputStream getSourceInputStream() throws IOException;
-        R doOperation(InputStream is) throws IOException;
-    }
 
     public static <R> R doWithCache(String cacheRelativePath, CacheOperation<R> operation) throws IOException {
         File cacheFile = new File(getCacheHome(), cacheRelativePath);
@@ -44,10 +38,16 @@ public class FileCache {
     }
 
     public static File getCacheHome() {
-        File file = new File(System.getProperty("user.home"), ".video-cache");
+        File file = new File(System.getProperty("user.home"), ".task-cache");
         if (!file.exists()) {
             file.mkdirs();
         }
         return file;
+    }
+
+    public interface CacheOperation<R> {
+        InputStream getSourceInputStream() throws IOException;
+
+        R doOperation(InputStream is) throws IOException;
     }
 }

@@ -40,8 +40,8 @@ public class HttpClient {
     // TODO 反爬头添加
     public static CloseableHttpResponse get(HttpUriRequestBase request) throws IOException {
         request.setConfig(DEFAULT_CONFIG);
-        request.setHeader("Content-Type", "*/*");
-        // request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36");
+        // request.setHeader("Content-Type", "*/*");
+        request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36");
         return CLIENT.execute(request);
     }
 

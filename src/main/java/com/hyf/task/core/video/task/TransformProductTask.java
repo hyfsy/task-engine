@@ -1,6 +1,5 @@
 package com.hyf.task.core.video.task;
 
-import com.hyf.task.core.task.CommonTask;
 import com.hyf.task.core.TaskContext;
 import com.hyf.task.core.annotation.NeedAttribute;
 import com.hyf.task.core.exception.TaskException;
@@ -16,13 +15,14 @@ import static com.hyf.task.core.video.constants.VideoConstants.*;
 @NeedAttribute(DOWNLOAD_RESOURCE_PATH)
 @NeedAttribute(VIDEO_SAVE_PATH)
 @NeedAttribute(value = VIDEO_SAVE_NAME, required = false)
-public class TransformProductTask extends CommonTask<File> {
+public class TransformProductTask extends VideoCommonTask<File> {
 
     public static File getSaveFile(TaskContext context) {
-        String videoSavePath = context.getVideoSavePath();
+        String videoSavePath = context.getAttribute(VIDEO_SAVE_PATH);
         String videoSaveName = context.getAttribute(VIDEO_SAVE_NAME);
         if (videoSaveName == null) {
-            videoSaveName = context.getVideoId() + (StringUtils.isBlank(context.getVideoName()) ? "" : "---" + context.getVideoName()) + ".mp4";
+            // TODO 这边固定了mp4后缀
+            videoSaveName = context.getAttribute(VIDEO_ID) + (StringUtils.isBlank(context.getAttribute(VIDEO_NAME)) ? "" : "---" + context.getAttribute(VIDEO_NAME)) + ".mp4";
         }
         return new File(videoSavePath, videoSaveName);
     }
@@ -67,7 +67,7 @@ public class TransformProductTask extends CommonTask<File> {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("==> success download video: " + context.getVideoId() + ", file path: " + saveFile.getAbsolutePath());
+            log.debug("==> success download video: " + getVideoId(context) + ", file path: " + saveFile.getAbsolutePath());
         }
 
         context.triggerNextStep();

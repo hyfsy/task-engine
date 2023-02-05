@@ -1,6 +1,5 @@
 package com.hyf.task.core.video.task;
 
-import com.hyf.task.core.task.NetworkTask;
 import com.hyf.task.core.TaskContext;
 import com.hyf.task.core.annotation.NeedAttribute;
 import com.hyf.task.core.annotation.PutAttribute;
@@ -25,13 +24,13 @@ import static com.hyf.task.core.video.constants.VideoConstants.*;
 @NeedAttribute(value = VIDEO_NAME, required = false)
 @NeedAttribute(value = DOWNLOAD_RESOURCE_PATH, required = false)
 @PutAttribute(DOWNLOAD_RESOURCE_PATH)
-public class DownloadResourceTask extends NetworkTask<File> {
+public class DownloadResourceTask extends VideoDownloadTask<File> {
 
     public static String getDownloadResourcePath(TaskContext context) {
-        String resourceSavePath = context.getVideoSavePath();
+        String resourceSavePath = context.getAttribute(VIDEO_SAVE_PATH);
         String downloadResourcePath = context.getAttribute(DOWNLOAD_RESOURCE_PATH);
-        if (StringUtils.isBlank(downloadResourcePath) && StringUtils.isNotBlank(context.getVideoName())) {
-            downloadResourcePath = resourceSavePath + File.separator + context.getVideoName();
+        if (StringUtils.isBlank(downloadResourcePath) && StringUtils.isNotBlank(context.getAttribute(VIDEO_NAME))) {
+            downloadResourcePath = resourceSavePath + File.separator + context.getAttribute(VIDEO_NAME);
             context.putAttribute(DOWNLOAD_RESOURCE_PATH, downloadResourcePath);
         }
         if (StringUtils.isBlank(downloadResourcePath)) {
@@ -64,6 +63,7 @@ public class DownloadResourceTask extends NetworkTask<File> {
             }
 
             // TODO 此处有时会阻塞住，没有任何反应
+            // TODO 大文件情况，此处看不到任何情况、是否可支持断点续传，临时文件续传
             try (CloseableHttpResponse response = HttpClient.get(resourceUrl)) {
                 if (response.getCode() >= 300) { // such as 502 504 404(sometimes)
                     throw new IOException("Failed to get resource, code: " + response.getCode() + ", url: " + resourceUrl);
@@ -88,7 +88,7 @@ public class DownloadResourceTask extends NetworkTask<File> {
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
-            throw new TaskException("Failed to download ts resource, id: " + context.getVideoId(), e);
+            throw new TaskException("Failed to download ts resource, id: " + getVideoId(context), e);
         }
     }
 

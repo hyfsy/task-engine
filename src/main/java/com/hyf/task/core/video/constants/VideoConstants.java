@@ -39,11 +39,6 @@ public interface VideoConstants {
     // other
 
     /**
-     * 代表前一个任务的返回值
-     */
-    String PREVIOUS_PROCESS_RESULT = "PREVIOUS_PROCESS_RESULT";
-
-    /**
      * 下载资源的URL地址
      */
     String DOWNLOAD_RESOURCE_URL        = "DOWNLOAD_RESOURCE_URL";
@@ -55,10 +50,6 @@ public interface VideoConstants {
      * 下载资源的保存路径
      */
     String DOWNLOAD_RESOURCE_PATH       = "DOWNLOAD_RESOURCE_PATH";
-    /**
-     * 下载资源的重试次数
-     */
-    String DOWNLOAD_RESOURCE_RETRY_TIME = "DOWNLOAD_RESOURCE_RETRY_TIME";
 
     /**
      * 视频网站的域名

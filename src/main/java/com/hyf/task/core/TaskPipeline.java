@@ -1,7 +1,7 @@
 package com.hyf.task.core;
 
 import com.hyf.task.core.task.Task;
-import com.hyf.task.core.utils.ExecuteUtils;
+import com.hyf.task.core.utils.ExecutorUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -37,9 +37,9 @@ public class TaskPipeline {
     }
 
     public Task<?> getFirstTask(TaskContext context) {
-        Task<?> videoTask = pipelines == null || pipelines.isEmpty() ? null : pipelines.get(0).task;
-        context.putAttribute(CURRENT_TASK, videoTask);
-        return videoTask;
+        Task<?> task = pipelines == null || pipelines.isEmpty() ? null : pipelines.get(0).task;
+        context.putAttribute(CURRENT_TASK, task);
+        return task;
     }
 
     public void triggerNextStep(TaskContext context) {
@@ -62,7 +62,7 @@ public class TaskPipeline {
         }
         ExecutorService executor = task.getExecutor();
         if (executor == null) {
-            executor = ExecuteUtils.commonExecutor;
+            executor = ExecutorUtils.commonExecutor;
         }
         context.submit(executor, new TaskCallable<>(task, context));
     }

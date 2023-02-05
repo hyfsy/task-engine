@@ -5,6 +5,7 @@ import com.hyf.hotrefresh.common.util.IOUtils;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Arrays;
 
 public class FileUtils extends com.hyf.hotrefresh.common.util.FileUtils {
 
@@ -43,6 +44,17 @@ public class FileUtils extends com.hyf.hotrefresh.common.util.FileUtils {
 
         if (!tmpFile.renameTo(saveFile)) {
             throw new IOException("Failed to rename file: " + tmpFile.getAbsolutePath());
+        }
+    }
+
+    public static void moveToTrash(File... files) {
+        com.sun.jna.platform.FileUtils instance = com.sun.jna.platform.FileUtils.getInstance();
+        if (instance.hasTrash()) {
+            try {
+                instance.moveToTrash(files);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to move path to trash: " + Arrays.toString(files), e);
+            }
         }
     }
 }

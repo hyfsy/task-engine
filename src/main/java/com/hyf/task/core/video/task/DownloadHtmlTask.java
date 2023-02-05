@@ -1,7 +1,6 @@
 package com.hyf.task.core.video.task;
 
 import com.hyf.hotrefresh.common.util.IOUtils;
-import com.hyf.task.core.task.NetworkTask;
 import com.hyf.task.core.FileCache;
 import com.hyf.task.core.TaskContext;
 import com.hyf.task.core.annotation.NeedAttribute;
@@ -22,7 +21,7 @@ import static com.hyf.task.core.video.task.DownloadHtmlTask.DOWNLOAD_URL_VIDEO_H
  */
 @NeedAttribute(DOWNLOAD_URL_VIDEO_HTML)
 @PutAttribute(CACHE_IDENTITY_DOWNLOAD_HTML)
-public class DownloadHtmlTask extends NetworkTask<String> {
+public class DownloadHtmlTask extends VideoDownloadTask<String> {
 
     /**
      * 下载视频所在的html的URL地址
@@ -37,7 +36,7 @@ public class DownloadHtmlTask extends NetworkTask<String> {
     public String process(TaskContext context) throws Exception {
 
         if (log.isDebugEnabled()) {
-            log.debug("==> start load video: " + context.getVideoId());
+            log.debug("==> start load video: " + getVideoId(context));
         }
 
         String htmlContent = getHtmlContent(context);
@@ -79,8 +78,8 @@ public class DownloadHtmlTask extends NetworkTask<String> {
     }
 
     private String getFileIdentity(TaskContext context) {
-        String videoId = context.getVideoId();
-        String siteType = context.getVideoSiteType();
+        String videoId = getVideoId(context);
+        String siteType = getVideoSiteType(context);
         String identity = videoId + ".html";
         if (siteType != null) {
             identity = siteType + "-" + identity;

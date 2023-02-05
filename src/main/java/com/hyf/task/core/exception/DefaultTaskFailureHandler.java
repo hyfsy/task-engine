@@ -1,7 +1,7 @@
 package com.hyf.task.core.exception;
 
-import com.hyf.task.core.task.Task;
 import com.hyf.task.core.TaskContext;
+import com.hyf.task.core.task.Task;
 
 /**
  * @author baB_hyf
@@ -12,7 +12,7 @@ public class DefaultTaskFailureHandler implements TaskFailureHandler {
     public static final DefaultTaskFailureHandler INSTANCE = new DefaultTaskFailureHandler();
 
     @Override
-    public <T> T handle(Task<T> videoTask, TaskContext taskContext, Throwable t) {
+    public <T> T handle(Task<T> task, TaskContext taskContext, Throwable t) {
         t.printStackTrace();
         return null;
     }
