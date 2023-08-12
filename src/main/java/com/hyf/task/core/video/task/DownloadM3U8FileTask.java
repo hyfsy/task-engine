@@ -74,7 +74,8 @@ public class DownloadM3U8FileTask extends VideoDownloadTask<List<String>> {
                 downloadNew = false;
                 while (it.hasNext()) {
                     String resourceUrl = it.next();
-                    if (resourceUrl.endsWith(M3U8_FILE_SUFFIX_NAME)) {
+                    // http://index.m3u8?xxx=xxx
+                    if (resourceUrl.contains("." + M3U8_FILE_SUFFIX_NAME)) {
 
                         DownloadM3U8FileTask subTask = new DownloadM3U8FileTask();
                         TaskContext videoContext = context.copy();

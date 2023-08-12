@@ -15,6 +15,7 @@ import org.apache.hc.core5.http.config.Registry;
 import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
@@ -22,6 +23,9 @@ import java.io.InputStream;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 
 /**
  * @author baB_hyf
@@ -103,9 +107,9 @@ public class HttpClient {
 
     private static RequestConfig createConfig() {
         return RequestConfig.custom()
-                // .setConnectionRequestTimeout(5000)
-                // .setConnectTimeout(5000)
-                // .setSocketTimeout(5000)
+                .setConnectionRequestTimeout(Timeout.of(Duration.of(5, ChronoUnit.SECONDS)))
+                .setResponseTimeout(Timeout.of(Duration.of(120, ChronoUnit.SECONDS)))
+                // .setSocketTimeout(30000)
                 .build();
     }
 }

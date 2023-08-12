@@ -47,7 +47,7 @@
         <dependency>
             <groupId>io.github.hyfsy</groupId>
             <artifactId>hot-refresh-core</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.5</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>

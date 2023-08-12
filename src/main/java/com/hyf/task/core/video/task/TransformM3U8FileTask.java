@@ -60,6 +60,9 @@ public class TransformM3U8FileTask extends VideoCommonTask<Void> {
                 }
                 if (!row.startsWith(M3U8_FILE_COMMENT)) {
                     row = row.substring(row.lastIndexOf("/") + 1);
+                    if (row.indexOf('?') != -1) {
+                        row = row.substring(0, row.indexOf('?'));
+                    }
                     if (!row.endsWith(".ts") && !row.endsWith(".m3u8") && !row.endsWith(".key")) {
                         int i = row.lastIndexOf(".");
                         if (i == -1) { // add .ts suffix directly?
