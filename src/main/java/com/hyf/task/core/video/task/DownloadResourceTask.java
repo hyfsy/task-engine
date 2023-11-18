@@ -88,7 +88,7 @@ public class DownloadResourceTask extends VideoDownloadTask<File> {
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
-            throw new TaskException("Failed to download ts resource, id: " + getVideoId(context), e);
+            throw new TaskException("Failed to download ts resource, videoId: " + getVideoId(context), e);
         }
     }
 

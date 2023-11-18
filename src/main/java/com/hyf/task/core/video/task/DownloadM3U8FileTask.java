@@ -48,7 +48,7 @@ public class DownloadM3U8FileTask extends VideoDownloadTask<List<String>> {
             String m3u8FileUrl = context.getAttribute(DOWNLOAD_URL_M3U8_FILE);
 
             if (StringUtils.isBlank(m3u8FileUrl)) {
-                throw new IllegalStateException("DOWNLOAD_URL_M3U8_FILE must has text");
+                throw new IllegalStateException("DOWNLOAD_URL_M3U8_FILE must have text, videoId: " + getVideoId(context));
             }
 
             if (log.isDebugEnabled()) {
@@ -103,7 +103,7 @@ public class DownloadM3U8FileTask extends VideoDownloadTask<List<String>> {
             context.triggerNextStep();
             return resourceList;
         } catch (Exception e) {
-            log.error("Failed to download m3u8 file, id: " + getVideoId(context) + " error: " + e.getMessage(), e);
+            log.error("Failed to download m3u8 file, id: " + getVideoId(context), e);
             return null;
         }
     }

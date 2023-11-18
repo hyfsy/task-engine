@@ -12,6 +12,7 @@ public class TaskCleaner {
 
     public static void main(String[] args) {
         cleanCache();
+        // System.out.println(FileCache.getCacheHome());
     }
 
     public static void cleanCache() {

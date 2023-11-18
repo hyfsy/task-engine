@@ -91,7 +91,7 @@ public class ExecutorUtils {
 
                 try {
                     ioExecutor.shutdown();
-                    if (!ioExecutor.awaitTermination(15, TimeUnit.SECONDS)) {
+                    if (!ioExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
                         ioExecutor.shutdownNow();
                     }
                 } catch (InterruptedException e) {

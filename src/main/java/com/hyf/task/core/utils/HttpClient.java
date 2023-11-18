@@ -41,6 +41,7 @@ public class HttpClient {
         return get(new HttpGet(url));
     }
 
+    // TODO quic协议支持
     // TODO 反爬头添加
     public static CloseableHttpResponse get(HttpUriRequestBase request) throws IOException {
         request.setConfig(DEFAULT_CONFIG);

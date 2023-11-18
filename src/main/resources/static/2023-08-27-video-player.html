@@ -1,0 +1,194 @@
+---
+layout: default_html
+title: 在线播放
+date: 2023-08-27
+excerpt: "方便看视频"
+tags: [html, m3u8]
+comments: false
+project: true
+---
+
+<!--<!DOCTYPE html>-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>在线播放</title>
+<style>
+    .controlButton {
+        width: 100%;
+        height: 150px;
+        font-size: 50px;
+    }
+
+    .preAndTextAndNext {
+        font-size: 50px;
+        height: 100px;
+    }
+
+    .preAndTextAndNextCenter {
+        width: 650px;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .videoIFrame {
+        width: 100%;
+        height: 500px;
+    }
+
+    .videoList {
+        width: 19%;
+        height: 150px;
+        font-size: 50px;
+        padding-left: 60px;
+        padding-right: 60px;
+    }
+</style>
+</head>
+<body>
+	<br />
+	<input id="url" type="text" placeholder="请输入M3U8文件地址，多个分号 ; 分隔" class="controlButton" />
+	<br />
+	<br />
+	<input id="commit" type="button" value="解析资源" class="controlButton" style="float:right;">
+	<input id="playAndFullScreen" type="button" value="全屏播放" class="controlButton">
+	<br />
+	<br />
+	<div id="videoBody"></div>
+	<script>
+		var urlInput = document.getElementById('url');
+		var videoBody = document.getElementById('videoBody');
+
+		var videoList = [];
+		var cur = -1;
+
+		document.getElementById('commit').addEventListener('click', function(e) {
+			if (urlInput.value === '') {
+				alert("请输入资源地址！");
+				return;
+			}
+
+			var m3u8Url = urlInput.value;
+			urlInput.value = '';
+			var urls = m3u8Url.split(";");
+			cur = 0;
+			videoList = urls;
+
+			// video
+			var body = '<iframe id="videoIFrame" class="videoIFrame" src="" allowfullscreen="allowfullscreen" mozallowfullscreen="mozallowfullscreen" msallowfullscreen="msallowfullscreen" oallowfullscreen="oallowfullscreen" webkitallowfullscreen="webkitallowfullscreen"></iframe>';
+
+			// 上下集
+			body +=
+				'\t\t<br /><br />' +
+				'\t\t<span class="preAndTextAndNextCenter">\n' +
+				'\t\t\t<input id="prev" type="button" value="上一集" class="preAndTextAndNext">\n' +
+				'\t\t\t<span id="num" class="preAndTextAndNext">' + (cur + 1) + '/' + videoList.length + '</span>\n' +
+				'\t\t\t<input id="next" type="button" value="下一集" class="preAndTextAndNext">\n' +
+				'\t\t</span>'
+			;
+
+			// video列表
+			body += '\t\t<br />';
+			for (let i = 1; i <= videoList.length; i++) {
+				body += '\t\t<input name="videoList" type="button" class="videoList" value="' + i + '">';
+				if (i % 5 === 0) {
+					body += '\t\t<br />';
+				}
+			}
+
+			videoBody.innerHTML = body;
+
+			// 启动
+
+			changeCurrentVideo();
+
+			// video事件添加
+
+			document.getElementById('prev').addEventListener('click', function(e) {
+				prev();
+			});
+			document.getElementById('next').addEventListener('click', function(e) {
+				next();
+			});
+			var videoElementList = document.getElementsByName('videoList');
+			for (let i = 0; i < videoElementList.length; i++) {
+				videoElementList[i].addEventListener('click', function(e) {
+					chooseVideo(e);
+				});
+			}
+		});
+
+		document.getElementById('playAndFullScreen').addEventListener('click', function(e) {
+			var videoIFrame = document.getElementById("videoIFrame");
+			if (videoIFrame == null) {
+				alert("视频还没加载！");
+				return;
+			}
+			var videoElements = videoIFrame.contentWindow.document.getElementsByTagName("video");
+			if (videoElements.length > 0) {
+				var video = videoElements[0];
+				// 播放
+				video.play();
+				// 全屏
+				// windows
+				if (video.requestFullscreen) {
+					video.requestFullscreen();
+				}
+				// iphone safiri
+				else if (video.webkitEnterFullscreen) {
+					video.webkitEnterFullscreen();
+				} else if (video.webkitRequestFullscreen) {
+					video.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+				} else if (video.mozRequestFullScreen) {
+					video.mozRequestFullScreen();
+				} else if (video.msRequestFullscreen) {
+					video.msRequestFullscreen();
+				} else {
+					alert("该浏览器不支持全屏！");
+				}
+			}
+		});
+
+		function prev() {
+			// 当前已为第一个资源
+			if (cur === 0) {
+				return;
+			}
+			// 视频资源存在 & 更新后的游标在videoList的范围内
+			if (videoList.length <= 0 || cur - 1 >= videoList.length) {
+				alert("videoList.length < cur, len: " + videoList.length + ", cur: " + cur);
+				return;
+			}
+
+			--cur;
+			changeCurrentVideo();
+		}
+
+		function next() {
+			// 当前已为最后一个资源
+			if (cur === videoList.length - 1) {
+				return;
+			}
+			// 视频资源存在 & 更新后的游标在videoList的范围内
+			if (videoList.length <= 0 || cur + 1 >= videoList.length) {
+				alert("videoList.length < cur, len: " + videoList.length + ", cur: " + cur);
+				return;
+			}
+
+			++cur;
+			changeCurrentVideo();
+		}
+
+		function chooseVideo(e) {
+			cur = e.target.value - 1;
+			changeCurrentVideo();
+		}
+
+		function changeCurrentVideo() {
+			document.getElementById('num').textContent = (cur + 1) + '/' + videoList.length;
+			document.getElementById('videoIFrame').src = '../resources/hls/m3u8.html?url=' + videoList[cur];
+		}
+	</script>
+
+</body>
+</html>
