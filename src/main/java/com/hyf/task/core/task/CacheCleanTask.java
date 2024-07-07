@@ -19,9 +19,19 @@ public abstract class CacheCleanTask extends Task<Void> {
         if (StringUtils.isNotBlank(cacheRelativePath)) {
             FileCache.clearCache(cacheRelativePath);
         }
+        String cacheRelativePath2 = getIdentityContent(context);
+        if (StringUtils.isNotBlank(cacheRelativePath2)) {
+            FileCache.clearCache(cacheRelativePath2);
+        }
         context.triggerNextStep();
         return null;
     }
 
-    protected abstract String getIdentity(TaskContext context);
+    protected String getIdentity(TaskContext context) {
+        return null;
+    }
+
+    protected String getIdentityContent(TaskContext context) {
+        return null;
+    }
 }

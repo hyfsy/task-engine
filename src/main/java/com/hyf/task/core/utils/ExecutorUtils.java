@@ -35,6 +35,7 @@ public class ExecutorUtils {
                     return t;
                 }
             }, new ThreadPoolExecutor.CallerRunsPolicy());
+    // 55 在弱网环境使用，105 在网络通畅的环境使用
     public static final ThreadPoolExecutor ioExecutor     =
             new ThreadPoolExecutor(55, 55, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<>(100000), new ThreadFactory() {
                 final AtomicInteger i = new AtomicInteger(0);

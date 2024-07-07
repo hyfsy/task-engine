@@ -4,14 +4,15 @@ import com.hyf.task.core.constants.TaskConstants;
 import com.hyf.task.core.exception.TaskFailureHandler;
 import com.hyf.task.core.task.Task;
 import com.hyf.task.core.utils.ExecutorUtils;
+import com.hyf.task.core.video.Env;
 
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class TaskContext {
+
+    public static boolean _limit_enabled = true;
+    public static int _limit_random_ms = 1000;
 
     private final    Map<String, Object> attributes;
     private          TaskEngine          engine;
@@ -34,6 +35,12 @@ public class TaskContext {
     public <T> void submit(ExecutorService executorService, Callable<T> callable) {
         if (executorService == null) {
             executorService = ExecutorUtils.commonExecutor;
+        }
+        if (_limit_enabled) {
+            try {
+                Thread.sleep(ThreadLocalRandom.current().nextInt(_limit_random_ms));
+            } catch (InterruptedException ignored) {
+            }
         }
         executorService.submit(callable);
     }
@@ -68,6 +75,7 @@ public class TaskContext {
         TaskContext context = new TaskContext(attributes);
         context.setEngine(engine);
         context.setPipeline(pipeline);
+        context.setFailureHandler(failureHandler);
         return context;
     }
 

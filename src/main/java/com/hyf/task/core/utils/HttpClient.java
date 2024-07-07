@@ -26,6 +26,10 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * @author baB_hyf
@@ -37,6 +41,8 @@ public class HttpClient {
 
     private static final RequestConfig DEFAULT_CONFIG = createConfig();
 
+    public static final ServiceLoader<RequestCustomizer> requestCustomizers = ServiceLoader.load(RequestCustomizer.class);
+
     public static CloseableHttpResponse get(String url) throws IOException {
         return get(new HttpGet(url));
     }
@@ -47,6 +53,11 @@ public class HttpClient {
         request.setConfig(DEFAULT_CONFIG);
         // request.setHeader("Content-Type", "*/*");
         request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36");
+        Iterator<RequestCustomizer> it = requestCustomizers.iterator();
+        while (it.hasNext()) {
+            RequestCustomizer customizer = it.next();
+            request = customizer.customize(request);
+        }
         return CLIENT.execute(request);
     }
 

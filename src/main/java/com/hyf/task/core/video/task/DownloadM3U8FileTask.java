@@ -194,7 +194,7 @@ public class DownloadM3U8FileTask extends VideoDownloadTask<List<String>> {
 
     }
 
-    private String getCorrectResourceUrl(String m3u8FileUrl, String row) {
+    public String getCorrectResourceUrl(String m3u8FileUrl, String row) {
         if (row.startsWith("http")) {
             return row;
         }
@@ -203,35 +203,74 @@ public class DownloadM3U8FileTask extends VideoDownloadTask<List<String>> {
         // xxx.m3u8
         // /xxx/xxx.m3u8
         // xxx/xxx.m3u8
-        // xxx.png
 
         if (row.startsWith("/")) {
-            row = row.substring(1);
-        }
-
-        if (row.contains("/")) {
-            String samePath = row.substring(0, row.indexOf("/") + 1);
-            // 此特殊情况在哪用到？
-            int samePathIdx = m3u8FileUrl.lastIndexOf(samePath);
-            if (samePathIdx != -1) {
-                String prefix = m3u8FileUrl.substring(0, samePathIdx);
-                return prefix + row;
-            }
-        }
-
-        // other suffix
-        if (!row.endsWith(".ts") && !row.endsWith(".m3u8") && !row.endsWith(".key")) {
-            int i = row.lastIndexOf(".");
-            if (i == -1) { // add .ts suffix directly?
-                throw new RuntimeException("Illegal url: " + row);
+            int hostIdx = m3u8FileUrl.indexOf("/", m3u8FileUrl.indexOf("//") + 2);
+            if (hostIdx == -1) {
+                return m3u8FileUrl + row;
             }
             else {
-                row = row.substring(0, i) + ".ts";
+                return m3u8FileUrl.substring(0, hostIdx) + row;
             }
         }
-
         // relative path
-        return m3u8FileUrl.substring(0, m3u8FileUrl.lastIndexOf("/") + 1) + row;
+        else {
+            int hostIdx = m3u8FileUrl.indexOf("/", m3u8FileUrl.indexOf("//") + 2);
+            if (hostIdx == -1) {
+                return m3u8FileUrl + "/" + row;
+            }
+            else {
+                if (m3u8FileUrl.lastIndexOf("/") == hostIdx) {
+                    return m3u8FileUrl + row;
+                }
+                else {
+                    if (m3u8FileUrl.endsWith("/")) {
+                        m3u8FileUrl = m3u8FileUrl.substring(0, m3u8FileUrl.length() - 1);
+                    }
+                    return m3u8FileUrl.substring(0, m3u8FileUrl.lastIndexOf("/") + 1) + row;
+                }
+            }
+        }
     }
+
+    // private String getCorrectResourceUrl(String m3u8FileUrl, String row) {
+    //     if (row.startsWith("http")) {
+    //         return row;
+    //     }
+    //
+    //     // http://www.baidu.com/xxx/xxx.m3u8
+    //     // xxx.m3u8
+    //     // /xxx/xxx.m3u8
+    //     // xxx/xxx.m3u8
+    //     // xxx.png
+    //
+    //     if (row.startsWith("/")) {
+    //         row = row.substring(1);
+    //     }
+    //
+    //     if (row.contains("/")) {
+    //         String samePath = row.substring(0, row.indexOf("/") + 1);
+    //         // 此特殊情况在哪用到？
+    //         int samePathIdx = m3u8FileUrl.lastIndexOf(samePath);
+    //         if (samePathIdx != -1) {
+    //             String prefix = m3u8FileUrl.substring(0, samePathIdx);
+    //             return prefix + row;
+    //         }
+    //     }
+    //
+    //     // other suffix
+    //     if (!row.endsWith(".ts") && !row.endsWith(".m3u8") && !row.endsWith(".key")) {
+    //         int i = row.lastIndexOf(".");
+    //         if (i == -1) { // add .ts suffix directly?
+    //             throw new RuntimeException("Illegal url: " + row);
+    //         }
+    //         else {
+    //             row = row.substring(0, i) + ".ts";
+    //         }
+    //     }
+    //
+    //     // relative path
+    //     return m3u8FileUrl.substring(0, m3u8FileUrl.lastIndexOf("/") + 1) + row;
+    // }
 
 }
