@@ -16,6 +16,14 @@ public class Env {
         System.setProperty(VIDEO_DOWNLOAD_PATH_PROPERTY_KEY, path);
     }
 
+    public static void setCpuPoolSize(int size) {
+        System.setProperty(ExecutorUtils.CPU_POOL_SIZE, String.valueOf(size));
+    }
+
+    public static void setIoPoolSize(int size) {
+        System.setProperty(ExecutorUtils.IO_POOL_SIZE, String.valueOf(size));
+    }
+
     public static void setComputerShutdownWhenFinished() {
         ExecutorUtils._computer_shutdown_when_finished = true;
     }

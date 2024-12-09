@@ -25,10 +25,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ServiceLoader;
 
 /**
@@ -42,6 +39,14 @@ public class HttpClient {
     private static final RequestConfig DEFAULT_CONFIG = createConfig();
 
     public static final ServiceLoader<RequestCustomizer> requestCustomizers = ServiceLoader.load(RequestCustomizer.class);
+
+    static {
+        // eager init 多线程下载时再初始化会导致在 it.hasNext() 时抛出 NoSuchElementException
+        Iterator<RequestCustomizer> it = requestCustomizers.iterator();
+        while (it.hasNext()) {
+            it.next();
+        }
+    }
 
     public static CloseableHttpResponse get(String url) throws IOException {
         return get(new HttpGet(url));

@@ -12,6 +12,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExecutorUtils {
 
+    public static final String CPU_POOL_SIZE = "cpu.pool.size";
+    public static final int DEFAULT_CPU_POOL_SIZE = Integer.getInteger(CPU_POOL_SIZE, 8);
+    public static final String IO_POOL_SIZE = "io.pool.size";
+    // 55 在弱网环境使用，105 在网络通畅的环境使用
+    public static final int DEFAULT_IO_POOL_SIZE = Integer.getInteger(IO_POOL_SIZE, 55);
+
     public static final ThreadPoolExecutor commonExecutor =
             new ThreadPoolExecutor(0, Integer.MAX_VALUE, 3, TimeUnit.SECONDS, new SynchronousQueue<>(),
                     new ThreadFactory() {
@@ -25,7 +31,7 @@ public class ExecutorUtils {
                         }
                     });
     public static final ThreadPoolExecutor cpuExecutor    =
-            new ThreadPoolExecutor(8, 8, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<>(100000), new ThreadFactory() {
+            new ThreadPoolExecutor(DEFAULT_CPU_POOL_SIZE, DEFAULT_CPU_POOL_SIZE, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<>(100000), new ThreadFactory() {
                 final AtomicInteger i = new AtomicInteger(0);
 
                 @Override
@@ -35,9 +41,8 @@ public class ExecutorUtils {
                     return t;
                 }
             }, new ThreadPoolExecutor.CallerRunsPolicy());
-    // 55 在弱网环境使用，105 在网络通畅的环境使用
     public static final ThreadPoolExecutor ioExecutor     =
-            new ThreadPoolExecutor(55, 55, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<>(100000), new ThreadFactory() {
+            new ThreadPoolExecutor(DEFAULT_IO_POOL_SIZE, DEFAULT_IO_POOL_SIZE, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<>(100000), new ThreadFactory() {
                 final AtomicInteger i = new AtomicInteger(0);
 
                 @Override
