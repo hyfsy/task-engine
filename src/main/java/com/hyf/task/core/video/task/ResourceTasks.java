@@ -14,11 +14,11 @@ import java.io.InputStream;
 public class ResourceTasks {
 
     public static VideoTask<?> createJpgTask(String url) {
-        return createDownloadTask(url, ".jpg");
+        return createDownloadTask(url, "jpg");
     }
 
     public static VideoTask<?> createPngTask(String url) {
-        return createDownloadTask(url, ".png");
+        return createDownloadTask(url, "png");
     }
 
     private static VideoTask<?> createDownloadTask(String url, String suffix) {
