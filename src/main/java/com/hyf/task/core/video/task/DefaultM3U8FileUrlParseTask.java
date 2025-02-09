@@ -17,7 +17,7 @@ import static com.hyf.task.core.video.constants.M3U8Constants.DOWNLOAD_URL_M3U8_
  * @author baB_hyf
  * @date 2023/01/28
  */
-@NeedAttribute(DOWNLOAD_URL_M3U8_FILE)
+@NeedAttribute(value = DOWNLOAD_URL_M3U8_FILE, required = false)
 public class DefaultM3U8FileUrlParseTask extends VideoCommonTask<String> {
     @Override
     public final String process(TaskContext context) throws Exception {
@@ -26,6 +26,7 @@ public class DefaultM3U8FileUrlParseTask extends VideoCommonTask<String> {
         } catch (Exception e) {
             log.error("Failed to get m3u8 file, id: " + getVideoId(context) + " error: " + e.getMessage(), e);
         }
+        // TODO context.triggerNextStep();
         return context.getAttribute(DOWNLOAD_URL_M3U8_FILE);
     }
 
