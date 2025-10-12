@@ -69,7 +69,7 @@ public class TaskTemplate {
 
                     @Override
                     protected String parseM3u8UrlFromPattern(Matcher matcher, TaskContext context) {
-                        return matcher.group(resourceParser.m3u8PatternGroupIndex());
+                        return resourceParser.parseM3u8Url(matcher, context);
                     }
                 })
                 // .add(new CollectM3U8UrlTask(episodeSize, consumer, comparator))
@@ -109,11 +109,11 @@ public class TaskTemplate {
     }
 
     public interface ResourceParser {
-        String getHtmlUrl(String videoId, int i);
+        String getHtmlUrl(String videoId, int num);
 
         Pattern m3u8Pattern();
 
-        int m3u8PatternGroupIndex();
+        String parseM3u8Url(Matcher matcher, TaskContext context);
 
         String siteType();
     }
@@ -128,6 +128,9 @@ public class TaskTemplate {
         }
 
         public Range(int start, int end) {
+            if (start > end) {
+                throw new IllegalArgumentException("start: " + start + ", end: " + end);
+            }
             this.start = start;
             this.end = end;
         }
