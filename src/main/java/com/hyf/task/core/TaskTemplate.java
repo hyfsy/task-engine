@@ -17,9 +17,10 @@ import static com.hyf.task.core.video.constants.VideoConstants.*;
  */
 public class TaskTemplate {
 
-    private final Map<String, Range> series       = new LinkedHashMap<>();
-    private       String             savePath     = DEFAULT_VIDEO_SAVE_PATH;
-    private       boolean            disableLimit = true;
+    private final Map<String, Range> series                = new LinkedHashMap<>();
+    private       String             savePath              = DEFAULT_VIDEO_SAVE_PATH;
+    private       boolean            disableLimit          = true;
+    private       boolean            clearCacheBeforeStart = false;
 
     public void setSavePath(String savePath) {
         this.savePath = savePath;
@@ -27,6 +28,10 @@ public class TaskTemplate {
 
     public void setDisableLimit(boolean disableLimit) {
         this.disableLimit = disableLimit;
+    }
+
+    public void setClearCacheBeforeStart(boolean clearCacheBeforeStart) {
+        this.clearCacheBeforeStart = clearCacheBeforeStart;
     }
 
     public void addSeries(String videoId, int num) {
@@ -41,6 +46,9 @@ public class TaskTemplate {
 
         if (disableLimit) {
             Env.disableLimit();
+        }
+        if (clearCacheBeforeStart) {
+            TaskCleaner.cleanCache();
         }
 
         // Env.setVideoDownloadPath("C:\\Users\\baB_hyf\\Desktop\\sx");
