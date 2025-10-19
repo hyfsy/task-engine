@@ -42,7 +42,7 @@ public abstract class M3U8 implements Comparable<M3U8> {
                     paramMap.put(kv[0].trim(), kv[1].trim());
                 }
                 MainM3U8 mainM3U8 = new MainM3U8();
-                mainM3U8.programId = Long.parseLong(paramMap.get("PROGRAM-ID"));
+                mainM3U8.programId = Long.parseLong(paramMap.getOrDefault("PROGRAM-ID", "-1"));
                 mainM3U8.bandwidth = Long.parseLong(paramMap.get("BANDWIDTH"));
                 mainM3U8.resolution = Resolution.valueOf(paramMap.get("RESOLUTION"));
                 mainM3U8.source = rows[++i];

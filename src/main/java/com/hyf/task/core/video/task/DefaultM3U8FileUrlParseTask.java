@@ -37,8 +37,8 @@ public class DefaultM3U8FileUrlParseTask extends VideoCommonTask<String> {
     protected String normalizeUrl(String str) {
         try {
             return StringEscapeUtils.unescapeJava(URLDecoder.decode(str, StandardCharsets.UTF_8.name()));
-        } catch (UnsupportedEncodingException e) {
-            log.warn("string unescape failed", e);
+        } catch (Exception e) {
+            // log.warn("string unescape failed", e);
             return str;
         }
     }
