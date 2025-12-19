@@ -34,6 +34,10 @@ public class TaskTemplate {
         this.clearCacheBeforeStart = clearCacheBeforeStart;
     }
 
+    public void addSeries(String videoId) {
+        series.put(videoId, new Range(1));
+    }
+
     public void addSeries(String videoId, int num) {
         series.put(videoId, new Range(num));
     }
@@ -43,6 +47,10 @@ public class TaskTemplate {
     }
 
     public void execute(ResourceParser resourceParser) {
+        execute(new SimplePipelineParser(resourceParser));
+    }
+
+    public void execute(PipelineParser pipelineParser) {
 
         if (disableLimit) {
             Env.disableLimit();
@@ -66,28 +74,8 @@ public class TaskTemplate {
         //     return Integer.valueOf(episodeNumber).compareTo(Integer.valueOf(episodeNumber2));
         // };
 
-        TaskPipeline pipeline = new TaskPipeline()
-                .add(new DownloadHtmlTask())
-                .add(new HtmlBasedM3U8FileUrlParseTask() {
-
-                    @Override
-                    protected Pattern getObjectPattern() {
-                        return resourceParser.m3u8Pattern();
-                    }
-
-                    @Override
-                    protected String parseM3u8UrlFromPattern(Matcher matcher, TaskContext context) {
-                        return resourceParser.parseM3u8Url(matcher, context);
-                    }
-                })
-                // .add(new CollectM3U8UrlTask(episodeSize, consumer, comparator))
-                .add(new CheckFileExistTask())
-                .add(new DownloadM3U8FileTask())
-                .add(new DownloadResourceTaskDispatcher())
-                .add(new TransformM3U8FileTask())
-                .add(new MergeTSResourceTask())
-                .add(new TransformProductTask())
-                .add(new CleanTask());
+        TaskPipeline pipeline = new TaskPipeline();
+        pipelineParser.configPipeline(pipeline);
 
         TaskEngine engine = new TaskEngine(pipeline);
 
@@ -105,8 +93,8 @@ public class TaskTemplate {
 
                 instruction.putAttribute(VIDEO_ID, videoId + "-" + i);
                 instruction.putAttribute(VIDEO_SAVE_PATH, savePath);
-                instruction.putAttribute(DownloadHtmlTask.DOWNLOAD_URL_VIDEO_HTML, resourceParser.getHtmlUrl(videoId, i));
-                instruction.putAttribute(VIDEO_SITE_TYPE, resourceParser.siteType());
+                pipelineParser.configPerInstruction(instruction, videoId, i);
+                instruction.putAttribute(VIDEO_SITE_TYPE, pipelineParser.siteType());
 
                 engine.submit(instruction);
 
@@ -116,14 +104,66 @@ public class TaskTemplate {
         }
     }
 
-    public interface ResourceParser {
+    public interface ResourceInit {
+        String siteType();
+    }
+
+    public interface PipelineParser extends ResourceInit {
+        void configPipeline(TaskPipeline pipeline);
+        void configPerInstruction(TaskInstruction instruction, String videoId, int num);
+    }
+
+    public static class SimplePipelineParser implements PipelineParser {
+
+        private final ResourceParser resourceParser;
+
+        public SimplePipelineParser(ResourceParser resourceParser) {
+            this.resourceParser = resourceParser;
+        }
+
+        @Override
+        public void configPipeline(TaskPipeline pipeline) {
+            pipeline.add(new DownloadHtmlTask())
+                    .add(new HtmlBasedM3U8FileUrlParseTask() {
+
+                        @Override
+                        protected Pattern getObjectPattern() {
+                            return resourceParser.m3u8Pattern();
+                        }
+
+                        @Override
+                        protected String parseM3u8UrlFromPattern(Matcher matcher, TaskContext context) {
+                            return resourceParser.parseM3u8Url(matcher, context);
+                        }
+                    })
+                    // .add(new CollectM3U8UrlTask(episodeSize, consumer, comparator))
+                    .add(new CheckFileExistTask())
+                    .add(new DownloadM3U8FileTask())
+                    .add(new DownloadResourceTaskDispatcher())
+                    .add(new TransformM3U8FileTask())
+                    .add(new MergeTSResourceTask())
+                    .add(new TransformProductTask())
+                    .add(new CleanTask());
+        }
+
+        @Override
+        public void configPerInstruction(TaskInstruction instruction, String videoId, int num) {
+            instruction.putAttribute(DownloadHtmlTask.DOWNLOAD_URL_VIDEO_HTML, resourceParser.getHtmlUrl(videoId, num));
+        }
+
+        @Override
+        public String siteType() {
+            return resourceParser.siteType();
+        }
+    }
+
+    public interface ResourceParser extends ResourceInit {
         String getHtmlUrl(String videoId, int num);
 
         Pattern m3u8Pattern();
 
         String parseM3u8Url(Matcher matcher, TaskContext context);
 
-        String siteType();
     }
 
     // 1-x

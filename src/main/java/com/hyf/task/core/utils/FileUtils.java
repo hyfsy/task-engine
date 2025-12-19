@@ -37,10 +37,11 @@ public class FileUtils extends com.hyf.hotrefresh.common.util.FileUtils {
             }
         }
 
-        try (OutputStream os = Files.newOutputStream(tmpFile.toPath())) {
-            // TODO 大文件情况，循环拉取文件流时获取文件下载进度
-            IOUtils.writeTo(is, os);
-        }
+        // try (OutputStream os = Files.newOutputStream(tmpFile.toPath())) {
+        //     // TODO 大文件情况，循环拉取文件流时获取文件下载进度
+        //     IOUtils.writeTo(is, os);
+        // }
+        HighPerformanceFileSyncWriter.writeFile(is, tmpFile.getAbsolutePath());
 
         if (!tmpFile.renameTo(saveFile)) {
             throw new IOException("Failed to rename file: " + tmpFile.getAbsolutePath());

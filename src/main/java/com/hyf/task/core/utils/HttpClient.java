@@ -66,6 +66,7 @@ public class HttpClient {
         return CLIENT.execute(request);
     }
 
+    // TODO 支持h2/h3
     public static String getString(String url) throws IOException {
         return getString(new HttpGet(url));
     }
