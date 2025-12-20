@@ -47,10 +47,10 @@ public class TaskTemplate {
     }
 
     public void execute(ResourceParser resourceParser) {
-        execute(new SimplePipelineParser(resourceParser));
+        execute(new SimpleTaskConfigurer(resourceParser));
     }
 
-    public void execute(PipelineParser pipelineParser) {
+    public void execute(TaskConfigurer taskConfigurer) {
 
         if (disableLimit) {
             Env.disableLimit();
@@ -75,10 +75,9 @@ public class TaskTemplate {
         // };
 
         TaskPipeline pipeline = new TaskPipeline();
-        pipelineParser.configPipeline(pipeline);
+        taskConfigurer.configPipeline(pipeline);
 
         TaskEngine engine = new TaskEngine(pipeline);
-
 
         for (Map.Entry<String, Range> entry : series.entrySet()) {
 
@@ -93,8 +92,8 @@ public class TaskTemplate {
 
                 instruction.putAttribute(VIDEO_ID, videoId + "-" + i);
                 instruction.putAttribute(VIDEO_SAVE_PATH, savePath);
-                pipelineParser.configPerInstruction(instruction, videoId, i);
-                instruction.putAttribute(VIDEO_SITE_TYPE, pipelineParser.siteType());
+                taskConfigurer.configInstruction(instruction, videoId, i);
+                instruction.putAttribute(VIDEO_SITE_TYPE, taskConfigurer.siteType());
 
                 engine.submit(instruction);
 
@@ -108,16 +107,16 @@ public class TaskTemplate {
         String siteType();
     }
 
-    public interface PipelineParser extends ResourceInit {
+    public interface TaskConfigurer extends ResourceInit {
         void configPipeline(TaskPipeline pipeline);
-        void configPerInstruction(TaskInstruction instruction, String videoId, int num);
+        void configInstruction(TaskInstruction instruction, String videoId, int num);
     }
 
-    public static class SimplePipelineParser implements PipelineParser {
+    public static class SimpleTaskConfigurer implements TaskConfigurer {
 
         private final ResourceParser resourceParser;
 
-        public SimplePipelineParser(ResourceParser resourceParser) {
+        public SimpleTaskConfigurer(ResourceParser resourceParser) {
             this.resourceParser = resourceParser;
         }
 
@@ -147,7 +146,7 @@ public class TaskTemplate {
         }
 
         @Override
-        public void configPerInstruction(TaskInstruction instruction, String videoId, int num) {
+        public void configInstruction(TaskInstruction instruction, String videoId, int num) {
             instruction.putAttribute(DownloadHtmlTask.DOWNLOAD_URL_VIDEO_HTML, resourceParser.getHtmlUrl(videoId, num));
         }
 
