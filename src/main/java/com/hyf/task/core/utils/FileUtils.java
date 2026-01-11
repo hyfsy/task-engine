@@ -50,6 +50,31 @@ public class FileUtils extends com.hyf.hotrefresh.common.util.FileUtils {
         }
     }
 
+    public static void replaceSafely(File src, File dest, boolean deleteDestIfExists) throws IOException {
+        boolean copiedExistDest = false;
+        File tempFile = new File(dest.getAbsolutePath(), ".replace.tmp");
+        if (dest.exists()) {
+            if (tempFile.exists()) {
+                if (!tempFile.delete()) {
+                    throw new IOException("delete exist temp dest failed, path: " + dest.getAbsolutePath());
+                }
+            }
+            copySafely(dest, tempFile);
+            if (!dest.delete()) {
+                throw new IOException("delete exist dest failed, path: " + dest.getAbsolutePath());
+            }
+            copiedExistDest = true;
+        }
+        if (!src.renameTo(dest)) {
+            throw new IOException("rename to dest failed, src: " + src.getAbsolutePath() + ", dest: " + dest.getAbsolutePath());
+        }
+        if (copiedExistDest && deleteDestIfExists) {
+            if (!tempFile.delete()) {
+                throw new IOException("delete exist temp dest failed, path: " + dest.getAbsolutePath());
+            }
+        }
+    }
+
     public static void copySafely(File src, File dest) throws IOException {
         safelyOp(src, dest, new BiConsumer<File, File>() {
             @Override

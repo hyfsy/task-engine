@@ -7,10 +7,7 @@ import com.hyf.task.core.utils.FileUtils;
 import com.hyf.task.core.utils.IOUtils;
 import com.hyf.task.core.utils.StringUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -118,23 +115,17 @@ public class TransformM3U8FileTask extends VideoCommonTask<Void> {
 
     public static class TsFileFixManager {
 
-        public static final byte[] TS_HEADER = new byte[]{0x47, 0x40, 0x00, 0x1F};
-
         private static final Map<String, TsFileFixer> fixers = new ConcurrentHashMap<>();
 
-        static {
-            addFixer("png", new PngToTsFileFixer());
-        }
-
-        public static void addFixer(String type, TsFileFixer fixer) {
-            fixers.put(type, fixer);
+        public static void addFixer(TsFileFixer fixer) {
+            fixers.put(fixer.getSuffix(), fixer);
         }
 
         public static void fix(String type, File file) throws IOException {
             TsFileFixer fixer = fixers.get(type);
             if (fixer == null) {
                 if (!defaultCheckCorrect(file)) {
-                    throw new IllegalStateException();
+                    // throw new IllegalStateException(file.getAbsolutePath());
                 }
                 return;
             }
@@ -151,28 +142,88 @@ public class TransformM3U8FileTask extends VideoCommonTask<Void> {
             channel.read(test);
             test.flip();
             for (int i = 0; i < test.limit(); i++) {
-                if (test.get() != TS_HEADER[i]) {
+                if (test.get() != TsFileFixer.TS_HEADER[i]) {
                     return false;
                 }
             }
             return true;
         }
 
-        public static interface TsFileFixer {
-            void fix(File file) throws IOException;
+    }
+
+    public static interface TsFileFixer {
+        public static final byte[] TS_HEADER = new byte[]{0x47, 0x40, 0x00, 0x1F};
+        String getSuffix();
+        void fix(File file) throws IOException;
+    }
+
+    public static class IgnoredTsFileFixer implements TsFileFixer {
+        private String suffix;
+
+        public IgnoredTsFileFixer(String suffix) {
+            this.suffix = suffix;
         }
 
-        public static class PngToTsFileFixer implements TsFileFixer {
-            @Override
-            public void fix(File file) throws IOException {
-                FileChannel channel = FileChannel.open(
-                        file.toPath(),
-                        StandardOpenOption.WRITE
-                );
-                channel.position(0);
-                channel.write(ByteBuffer.wrap(TS_HEADER));
+        @Override
+        public String getSuffix() {
+            return suffix;
+        }
+
+        @Override
+        public void fix(File file) throws IOException {
+            // 仅注册，不做任何操作
+        }
+    }
+
+    public static class DefaultTsFileFixer implements TsFileFixer {
+
+        private String suffix;
+        private int stripLength;
+        private boolean fillTsHeader;
+
+        public DefaultTsFileFixer(String suffix, int stripLength, boolean fillTsHeader) {
+            this.suffix = suffix;
+            this.stripLength = stripLength;
+            this.fillTsHeader = fillTsHeader;
+        }
+
+        @Override
+        public String getSuffix() {
+            return suffix;
+        }
+
+        @Override
+        public void fix(File file) throws IOException {
+            if (stripLength == 4 && fillTsHeader) {
+                replace(file);
+            }
+            else {
+                stripAndFill(file);
             }
         }
 
+        private void replace(File file) throws IOException {
+            FileChannel channel = FileChannel.open(
+                    file.toPath(),
+                    StandardOpenOption.WRITE
+            );
+            channel.position(0);
+            channel.write(ByteBuffer.wrap(TS_HEADER));
+        }
+
+        private void stripAndFill(File file) throws IOException {
+            File stripedFile = new File(file.getAbsolutePath(), ".strip");
+            try (FileInputStream fis = new FileInputStream(file.getAbsolutePath());
+                 FileOutputStream fos = new FileOutputStream(stripedFile.getAbsolutePath())) {
+                byte[] bytes = IOUtils.readAsByteArray(fis);
+                byte[] newBytes = new byte[bytes.length - stripLength + (fillTsHeader ? TS_HEADER.length : 0)];
+                if (fillTsHeader) {
+                    System.arraycopy(TS_HEADER, 0, newBytes, 0, TS_HEADER.length);
+                }
+                System.arraycopy(bytes, stripLength, newBytes, (fillTsHeader ? TS_HEADER.length : 0), newBytes.length);
+                IOUtils.writeTo(new ByteArrayInputStream(newBytes), fos);
+            }
+            FileUtils.replaceSafely(stripedFile, file, true);
+        }
     }
 }
