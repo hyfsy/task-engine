@@ -61,7 +61,7 @@ public class MergeTSResourceTask extends VideoComputeTask<File> {
             }
 
             if (extCode != 0) {
-                throw new RuntimeException("ffmpeg process failed, extCode: " + extCode);
+                throw new RuntimeException("ffmpeg process failed, extCode: " + extCode + ", path: " + downloadResourcePath + ", command: " + decodeCommand);
             }
             else {
                 if (!tempFile.renameTo(saveFile)) {

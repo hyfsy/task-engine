@@ -10,8 +10,15 @@ import com.hyf.task.core.utils.StringUtils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -68,8 +75,24 @@ public class TransformM3U8FileTask extends VideoCommonTask<Void> {
                         if (i == -1) { // add .ts suffix directly?
                             throw new RuntimeException("Illegal url: " + row);
                         }
+                        // 下载的对象后缀不对，这边兼容处理，ffmpeg只支持ts后缀的，内部解码器要匹配的
                         else {
-                            row = row.substring(0, i) + ".ts";
+                            File downloadedFile = new File(downloadResourcePath, row);
+                            String suffix = row.substring(i + 1);
+                            String newRow = row.substring(0, i) + ".ts";
+                            File updatedFile = new File(downloadResourcePath, newRow);
+                            if (!updatedFile.exists()) {
+                                if (!downloadedFile.exists()) {
+                                    throw new IllegalStateException("Rename file not exist, src: " + downloadedFile.getAbsolutePath());
+                                }
+                                try {
+                                    TsFileFixManager.fix(suffix, downloadedFile);
+                                    FileUtils.copySafely(downloadedFile, updatedFile);
+                                } catch (IOException e) {
+                                    throw new IllegalStateException("Copy file failed, src: " + downloadedFile.getAbsolutePath() + ", dest: " + updatedFile.getAbsolutePath());
+                                }
+                            }
+                            row = newRow;
                         }
                     }
                     return row;
@@ -91,5 +114,65 @@ public class TransformM3U8FileTask extends VideoCommonTask<Void> {
             log.error("Failed to download cleaned index.m3u8 file", e);
             return null;
         }
+    }
+
+    public static class TsFileFixManager {
+
+        public static final byte[] TS_HEADER = new byte[]{0x47, 0x40, 0x00, 0x1F};
+
+        private static final Map<String, TsFileFixer> fixers = new ConcurrentHashMap<>();
+
+        static {
+            addFixer("png", new PngToTsFileFixer());
+        }
+
+        public static void addFixer(String type, TsFileFixer fixer) {
+            fixers.put(type, fixer);
+        }
+
+        public static void fix(String type, File file) throws IOException {
+            TsFileFixer fixer = fixers.get(type);
+            if (fixer == null) {
+                if (!defaultCheckCorrect(file)) {
+                    throw new IllegalStateException();
+                }
+                return;
+            }
+            fixer.fix(file);
+        }
+
+        private static boolean defaultCheckCorrect(File file) throws IOException {
+            FileChannel channel = FileChannel.open(
+                    file.toPath(),
+                    StandardOpenOption.READ
+            );
+            channel.position(0);
+            ByteBuffer test = ByteBuffer.allocate(4);
+            channel.read(test);
+            test.flip();
+            for (int i = 0; i < test.limit(); i++) {
+                if (test.get() != TS_HEADER[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static interface TsFileFixer {
+            void fix(File file) throws IOException;
+        }
+
+        public static class PngToTsFileFixer implements TsFileFixer {
+            @Override
+            public void fix(File file) throws IOException {
+                FileChannel channel = FileChannel.open(
+                        file.toPath(),
+                        StandardOpenOption.WRITE
+                );
+                channel.position(0);
+                channel.write(ByteBuffer.wrap(TS_HEADER));
+            }
+        }
+
     }
 }

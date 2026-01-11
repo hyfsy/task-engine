@@ -6,6 +6,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 public class FileUtils extends com.hyf.hotrefresh.common.util.FileUtils {
 
@@ -44,6 +46,36 @@ public class FileUtils extends com.hyf.hotrefresh.common.util.FileUtils {
         HighPerformanceFileSyncWriter.writeFile(is, tmpFile.getAbsolutePath());
 
         if (!tmpFile.renameTo(saveFile)) {
+            throw new IOException("Failed to rename file: " + tmpFile.getAbsolutePath());
+        }
+    }
+
+    public static void copySafely(File src, File dest) throws IOException {
+        safelyOp(src, dest, new BiConsumer<File, File>() {
+            @Override
+            public void accept(File src, File dest) {
+                copy(src, dest);
+            }
+        });
+    }
+
+    private static void safelyOp(File src, File dest, BiConsumer<File, File> op) throws IOException {
+        if (dest.exists()) {
+            return;
+        }
+        File tmpFile = getTempFile(dest.getAbsolutePath());
+        if (!tmpFile.exists()) {
+            if (!tmpFile.getParentFile().exists() && !tmpFile.getParentFile().mkdirs()) {
+                throw new IOException("Failed to create parent directory for temp file: " + tmpFile.getAbsolutePath());
+            }
+            if (!tmpFile.createNewFile()) {
+                throw new IOException("Failed to create temp file: " + tmpFile.getAbsolutePath());
+            }
+        }
+
+        op.accept(src, tmpFile);
+
+        if (!tmpFile.renameTo(dest)) {
             throw new IOException("Failed to rename file: " + tmpFile.getAbsolutePath());
         }
     }
