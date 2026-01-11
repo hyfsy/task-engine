@@ -32,23 +32,38 @@ public abstract class HtmlBasedM3U8FileUrlParseTask extends DefaultM3U8FileUrlPa
 
         // object script
         Matcher matcher = getObjectPattern().matcher(htmlContent);
-        if (!matcher.find()) {
-            throw new RuntimeException("Cannot find video object in html, videoId: " + getVideoId(context) + ", content: " + htmlContent);
+        boolean hasUrl = matcher.find();
+        if (!hasUrl) {
+            // 兼容已存在的情况
+            String m3u8Url = context.getAttribute(DOWNLOAD_URL_M3U8_FILE);
+            if (m3u8Url == null) {
+                throw new RuntimeException("Cannot find video object in html, videoId: " + getVideoId(context) + ", content: " + htmlContent);
+            }
         }
 
         // title
         Matcher matcher2 = getNamePattern().matcher(htmlContent);
-        if (!matcher2.find()) {
-            throw new RuntimeException("Cannot find video title in html, videoId: " + getVideoId(context) + ", content: " + htmlContent);
+        boolean hasTitle = matcher2.find();
+        if (!hasTitle) {
+            // 兼容已存在的情况
+            String videoName = getVideoName(context);
+            if (videoName == null) {
+                throw new RuntimeException("Cannot find video title in html, videoId: " + getVideoId(context) + ", content: " + htmlContent);
+            }
         }
 
         preProcessContext(context);
 
-        String videoName = normalizeVideoName(context, parseVideoNameFromPattern(matcher2, context));
-        String m3u8Url = normalizeUrl(parseM3u8UrlFromPattern(matcher, context));
+        if (hasUrl) {
+            String m3u8Url = normalizeUrl(parseM3u8UrlFromPattern(matcher, context));
+            context.putAttribute(DOWNLOAD_URL_M3U8_FILE, m3u8Url);
+        }
 
-        setVideoName(context, videoName);
-        context.putAttribute(DOWNLOAD_URL_M3U8_FILE, m3u8Url);
+        if (hasTitle) {
+            String videoName = normalizeVideoName(context, parseVideoNameFromPattern(matcher2, context));
+            setVideoName(context, videoName);
+        }
+
         context.putAttribute(CheckFileExistTask.CHECK_FILE_PATH, TransformProductTask.getSaveFile(context).getAbsolutePath());
 
         postProcessContext(context);

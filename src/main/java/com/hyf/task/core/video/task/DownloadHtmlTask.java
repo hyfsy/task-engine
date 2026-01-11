@@ -88,7 +88,7 @@ public class DownloadHtmlTask extends VideoDownloadTask<String> {
         });
     }
 
-    private String getHtmlUrl(TaskContext context) {
+    protected String getHtmlUrl(TaskContext context) {
         String htmlUrl = context.getAttribute(DOWNLOAD_URL_VIDEO_HTML);
         if (htmlUrl.contains(",")) {
             String[] urls = htmlUrl.split(",");
@@ -97,7 +97,7 @@ public class DownloadHtmlTask extends VideoDownloadTask<String> {
         return htmlUrl;
     }
 
-    private String getFileIdentity(TaskContext context) {
+    protected String getFileIdentity(TaskContext context) {
         String videoId = getVideoId(context);
         String siteType = getVideoSiteType(context);
         String identity = videoId + ".html";
@@ -107,7 +107,7 @@ public class DownloadHtmlTask extends VideoDownloadTask<String> {
         return "html" + File.separator + identity;
     }
 
-    private void checkHtmlContent(TaskContext context, String htmlContent) {
+    protected void checkHtmlContent(TaskContext context, String htmlContent) {
         if (htmlContent.contains("Just a moment...")) {
             throw new RuntimeException("Failed to download html, it seem been limited, url: " + getHtmlUrl(context));
         }
